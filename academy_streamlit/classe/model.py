@@ -2,10 +2,19 @@ import pandas as pd
 import joblib
 
 class ModelTitanic():
+    """
+    Classe criada para aplicação destinada a prever se o usuário, dado as características inseridas, sobreviveria ao naufrágio do Titanic ou não. 
+    Para tal, a classe utiliza-se de um modelo de ML treinado previamente para esse fim.
+    """
     def __init__(self, values: dict):
         self.df = self.get_data(values)
 
     def predict(self):
+        """Método responsável por realizar os processos necessários e a predição utilizando o modelo, com base na entrada de dados do usuário.
+
+        Returns:
+            bool: Retorna True se o usuário sobreviveria ou False se o usuário morreria no Titanic.
+        """
         self.replace_values()
         data = self.create_dummies(self.df)
         # print(data)
@@ -16,12 +25,30 @@ class ModelTitanic():
         return True if res[0] == 1 else False
     
     def get_model(self):
+        """Método responsável por carregar o modelo treinado previamente.
+
+        Returns:
+            model: Retorna o modelo.
+        """
         return joblib.load('./classe/model/model.sav')
 
     def get_scaler(self):
+        """Método responsável por carregar o scaler utilizado no treinamento do modelo.
+
+        Returns:
+            scaler: Retorna o scaler.
+        """
         return joblib.load('./classe/model/scaler.sav')
 
-    def get_data(self, values):
+    def get_data(self, values: dict):
+        """Método responsável por criar um DataFrame com base nos valores recebidos pela aplicação.
+
+        Args:
+            values (dict): Dicionário com os valores coletados pela entrada de dados do usuário.
+
+        Returns:
+            DataFrame: Retorna um dataframe com os respectivos valores.
+        """
         v_ = {
             'idade': [values['idade_passageiro']],
             'sexo': [values['sexo_passageiro']],
@@ -35,6 +62,9 @@ class ModelTitanic():
         return pd.DataFrame(data = v_)
 
     def replace_values(self):
+        """
+        Método responsável por realizar a substituição dos valores das variáveis sexo e classe navio, a fim de respeitar suas características e o modo como foram utilizadas no modelo.
+        """
         mapper_sexo = {
             'Masculino': 'M',
             'Feminino': 'F'
@@ -50,10 +80,17 @@ class ModelTitanic():
 
         self.df['classe_navio'] = self.df['classe_navio'].replace(mapper_classe_navio)
 
-    def create_dummies(self, df):
+    def create_dummies(self, df: pd.DataFrame):
+        """Método responsável por criar as variáveis dummies manualmente.
+        Dado o fato de a entrada para teste/predição ser única, as variáveis dummies precisam ser criadas respeitando a lógica preestabelecida.
+
+        Args:
+            df (DataFrame): DataFrame Python com os dados.
+
+        Returns:
+            DataFrame: retorna um dataframe com as variáveis criadas e sem as variáveis originais.
         """
-        Método responsável por criar as variáveis dummies das variável categóricas.
-        """
+
         cols = ['classe_navio', 'sexo', 'porto_de_embarque']
         
         df.loc[:, 'classe_navio_1'] = 1 if df[cols[0]][0] == 1 else 0
